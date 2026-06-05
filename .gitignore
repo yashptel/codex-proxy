@@ -1,0 +1,11 @@
+# Secrets — NEVER commit
+.env
+.env.local
+
+# Runtime state: OAuth tokens, accounts, rotation/quota, proxy config
+data/
+config/
+
+# OS / editor cruft
+.DS_Store
+*.log

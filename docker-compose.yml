@@ -1,0 +1,36 @@
+services:
+  codex-proxy:
+    image: ghcr.io/icebear0828/codex-proxy:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      CODEX_PROXY_HOST: 0.0.0.0
+      # Mac Mini (Apple Silicon) -> container runs linux/arm64.
+      # If your image is amd64-only and runs emulated, set CODEX_ARCH=x64 in .env.
+      CODEX_PLATFORM: ${CODEX_PLATFORM:-linux}
+      CODEX_ARCH: ${CODEX_ARCH:-arm64}
+    volumes:
+      - ./data:/app/data       # OAuth tokens, accounts, rotation/quota state
+      - ./config:/app/config   # proxy config
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.codex-proxy.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.codex-proxy.entrypoints=websecure
+      - traefik.http.routers.codex-proxy.tls.certresolver=letsencrypt
+      - traefik.http.services.codex-proxy.loadbalancer.server.port=8080
+    # For poking at it locally on the host without going through Traefik,
+    # uncomment the next two lines (binds to loopback only):
+    # ports:
+    #   - "127.0.0.1:8080:8080"
+
+networks:
+  dokploy-network:
+    external: true
