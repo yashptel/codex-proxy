@@ -13,10 +13,24 @@ services:
       CODEX_PLATFORM: ${CODEX_PLATFORM:-linux}
       CODEX_ARCH: ${CODEX_ARCH:-arm64}
     volumes:
-      - ./data:/app/data       # OAuth tokens, accounts, rotation/quota state
-      - ./config:/app/config   # proxy config
+      - ./data:/app/data # OAuth tokens, accounts, rotation/quota state
+      - ./config:/app/config # proxy config
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    # The image's built-in healthcheck hits an authenticated /health and gets a
+    # 401 (the proxy auto-creates a global proxy_api_key on first boot), so the
+    # container is marked "unhealthy" and Traefik filters it out -> 404.
+    # Override it: treat "server responded at all" as healthy. Auth stays on.
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:8080/health',()=>process.exit(0)).on('error',()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - dokploy-network
     labels:
