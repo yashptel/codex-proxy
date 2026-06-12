@@ -1,6 +1,6 @@
 services:
   codex-proxy:
-    image: ghcr.io/icebear0828/codex-proxy:latest
+    image: ghcr.io/icebear0828/codex-proxy:v2.0.80
     restart: unless-stopped
     env_file:
       - .env
