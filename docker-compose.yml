@@ -1,6 +1,6 @@
 services:
   codex-proxy:
-    image: ghcr.io/icebear0828/codex-proxy:v2.0.80
+    image: ghcr.io/icebear0828/codex-proxy:latest
     restart: unless-stopped
     env_file:
       - .env
@@ -13,8 +13,10 @@ services:
       CODEX_PLATFORM: ${CODEX_PLATFORM:-linux}
       CODEX_ARCH: ${CODEX_ARCH:-arm64}
     volumes:
-      - ./data:/app/data # OAuth tokens, accounts, rotation/quota state
-      - ./config:/app/config # proxy config
+      # Named volumes persist across Dokploy redeploys (Dokploy re-clones the
+      # repo dir on every deploy, so relative ./ mounts get wiped).
+      - codex-proxy-data:/app/data # OAuth tokens, accounts, rotation/quota state
+      - codex-proxy-config:/app/config # proxy config
     extra_hosts:
       - "host.docker.internal:host-gateway"
     # The image's built-in healthcheck hits an authenticated /health and gets a
@@ -48,6 +50,10 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:1455:1455"
+
+volumes:
+  codex-proxy-data:
+  codex-proxy-config:
 
 networks:
   dokploy-network:
