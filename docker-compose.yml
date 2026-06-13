@@ -1,6 +1,6 @@
 services:
   codex-proxy:
-    image: ghcr.io/icebear0828/codex-proxy:latest
+    image: ghcr.io/icebear0828/codex-proxy:v2.0.81
     restart: unless-stopped
     env_file:
       - .env
@@ -38,7 +38,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=dokploy-network
-      - traefik.http.routers.codex-proxy.rule=Host(`openai.debugblackbox.com`)
+      - traefik.http.routers.codex-proxy.rule=Host(`openai.squiwo.com`)
       - traefik.http.routers.codex-proxy.entrypoints=websecure
       - traefik.http.routers.codex-proxy.tls.certresolver=letsencrypt
       - traefik.http.services.codex-proxy.loadbalancer.server.port=8080
